@@ -3,6 +3,12 @@
 #include <MPU9250_asukiaaa.h>
 #include <Wire.h>
 
+
+/*
+In this system, send coordinate data every 3 secs
+If degree >= min then send the data degreee
+*/
+
 // LoRa Pin Configuration
 const int LORA_NSS = 5;
 const int LORA_RST = 14;
@@ -56,6 +62,14 @@ bool setupMPU() {
   return true;
 }
 
+void sendMessage(String message) {
+  LoRa.beginPacket();
+  LoRa.print(message);
+  LoRa.endPacket();
+
+  Serial.println("LoRa Sent: " + message);
+}
+
 void setup() {
   Serial.begin(115200);
   while (!Serial)
@@ -87,14 +101,16 @@ void loop() {
   Serial.print(" Pitch: ");
   Serial.println(pitch);
 
-  if (abs(pitch) > TILT_THRESHOLD || abs(roll) - 179 > TILT_THRESHOLD) {
-    String msg = "WARNING! Tilt Detected. Roll: " + String(roll, 2) + " Pitch: " + String(pitch, 2);
-    LoRa.beginPacket();
-    LoRa.print(msg);
-    LoRa.endPacket();
+  // if (abs(pitch) > TILT_THRESHOLD || abs(roll) - 179 > TILT_THRESHOLD) {
+  //   String msg = "WARNING! Tilt Detected. Roll: " + String(roll, 2) + " Pitch: " + String(pitch, 2);
+  //   LoRa.beginPacket();
+  //   LoRa.print(msg);
+  //   LoRa.endPacket();
 
-    Serial.println("LoRa Sent: " + msg);
-  }
+  //   Serial.println("LoRa Sent: " + msg);
+  // }
 
-  delay(500);
+  //send data
+  String msg = " Roll: " + String(roll, 2) + " Pitch: " + String(pitch, 2);
+  sendMessage(msg);
 }
